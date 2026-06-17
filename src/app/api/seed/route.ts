@@ -25,6 +25,20 @@ export async function GET(request: Request) {
   }
 
   try {
+    const supabase = createAdminClient();
+
+    const { count } = await supabase
+      .from("verses")
+      .select("*", { count: "exact", head: true });
+
+    if (count && count > 0) {
+      return NextResponse.json({
+        success: true,
+        message: "Banco já populado",
+        total: count,
+      });
+    }
+
     const res = await fetch(
       "https://raw.githubusercontent.com/thiagobodruk/biblia/master/json/nvi.json",
     );
@@ -54,8 +68,6 @@ export async function GET(request: Request) {
         }
       }
     }
-
-    const supabase = createAdminClient();
 
     let inserted = 0;
     const errors: string[] = [];

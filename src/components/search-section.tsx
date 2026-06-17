@@ -139,15 +139,21 @@ export function SearchSection({ dailyVerse }: SearchSectionProps) {
         data = fallback ?? [];
       }
 
-      setResults(
-        (data ?? []).map((v: Record<string, unknown>) => ({
+      const seen = new Set<string>();
+      const deduped: Verse[] = [];
+      for (const v of data ?? []) {
+        const key = `${v.book}|${v.chapter}|${v.verse_number}|${v.content}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        deduped.push({
           id: String(v.id),
           livro: v.book as string,
           capitulo: v.chapter as number,
           versiculo: v.verse_number as number,
           texto: v.content as string,
-        })),
-      );
+        });
+      }
+      setResults(deduped);
     } catch (err) {
       if (id !== requestIdRef.current) return;
       setError(getErrorMessage(err));
